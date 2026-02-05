@@ -1,34 +1,4 @@
 body {
-  background: #061a33;
-  color: #cfe6ff;
-  font-family: Arial, sans-serif;
-  text-align: center;
-}
-
-#game {
-  max-width: 750px;
-  margin: auto;
-  padding: 20px;
-}
-
-button {
-  background: #0b3c78;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin: 4px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #125db8;
-}
-
-h1, h2 {
-  color: #8cc9ff;
-}
-body {
   background: linear-gradient(#041a3a, #020b1f);
   color: #dbe9ff;
   font-family: Arial, sans-serif;
@@ -37,10 +7,7 @@ body {
 
 h1 { color: #6fb6ff; }
 
-.stats {
-  margin: 10px;
-  font-size: 18px;
-}
+.stats { margin: 10px; font-size: 18px; }
 
 button {
   background: #0b3d91;
@@ -54,45 +21,59 @@ button {
 
 button:hover { background: #145ecb; }
 
-#message { margin-top: 10px; height: 24px; }
+#message { height: 22px; }
 
-/* ───── ITEM GRID ───── */
+/* Inventory grid */
 #items {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 10px;
-  list-style: none;
-  padding: 0;
+  padding: 10px;
+}
+
+.itemBox {
+  display: flex;
+  gap: 8px;
+  background: #071f46;
+  padding: 6px;
+  border-radius: 10px;
+  align-items: center;
 }
 
 /* 12x12 pixel screen */
-.itemBox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #071f46;
-  border-radius: 10px;
-  padding: 6px;
-}
-
 .pixel {
   width: 12px;
   height: 12px;
-  background: #0c2f66;
   border: 1px solid #6fb6ff;
+  background: #0c2f66;
   position: relative;
 }
 
-/* durability bar */
+/* Condition overlay */
 .pixel::after {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: var(--cond);
-  height: 100%;
+  inset: 0;
   background: var(--color);
+  opacity: 0.75;
+  clip-path: inset(calc(100% - var(--cond)) 0 0 0);
 }
+
+/* Icon grid */
+.icon {
+  position: absolute;
+  inset: 1px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 1px;
+}
+
+.px { background: transparent; }
+.px.w { background: #caa472; }
+.px.m { background: #9fb3c8; }
+.px.b { background: #6fb6ff; }
+.px.g { background: #7cff9e; }
 
 .itemText {
   font-size: 12px;
