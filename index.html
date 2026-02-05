@@ -10,71 +10,48 @@
 <div id="game">
   <h1>🚗 Broken Roadtrip</h1>
 
-  <p id="story">
-    Stranded in a deep blue forest.  
-    Build shelter. Survive the night. Escape.
-  </p>
+  <p>Your car breaks down in a dark blue forest. Survive. Build. Escape.</p>
 
-  <div id="time">
-    🌙 Time: <span id="dayState">Day</span>
-  </div>
+  <div>🌙 Time: <span id="dayState">Day</span></div>
 
   <div id="stats">
-    <div>❤️ Health: <span id="health">100</span></div>
-    <div>⚡ Energy: <span id="energy">100</span></div>
-    <div>💧 Thirst: <span id="thirst">100</span></div>
+    ❤️ Health: <span id="health">100</span><br>
+    ⚡ Energy: <span id="energy">100</span><br>
+    💧 Thirst: <span id="thirst">100</span>
   </div>
 
-  <div id="map">
-    <h2>🗺️ Map (−10 Energy)</h2>
-    <button onclick="travel('forest')">🌲 Forest</button>
-    <button onclick="travel('river')">💧 River</button>
-    <button onclick="travel('junkyard')">🔩 Junkyard</button>
-    <button onclick="travel('camp')">🚗 Camp</button>
-  </div>
+  <h2>🗺️ Map (−10 Energy)</h2>
+  <button onclick="travel('forest')">🌲 Forest</button>
+  <button onclick="travel('river')">💧 River</button>
+  <button onclick="travel('junkyard')">🔩 Junkyard</button>
+  <button onclick="travel('camp')">🚗 Camp</button>
 
-  <div id="actions">
-    <h2>Actions</h2>
-    <button onclick="gather()">⛏ Gather (−10)</button>
-    <button onclick="hunt()">🏹 Hunt (−20)</button>
-    <button onclick="drink()">💧 Drink</button>
-    <button onclick="rest()">😴 Rest</button>
-  </div>
+  <h2>Actions</h2>
+  <button onclick="gather()">⛏ Gather (−10)</button>
+  <button onclick="hunt()">🏹 Hunt (−20)</button>
+  <button onclick="drink()">💧 Drink</button>
+  <button onclick="rest()">😴 Rest</button>
 
-  <div id="crafting">
-    <h2>Craft / Build</h2>
+  <h2>Craft / Build</h2>
+  <button onclick="buildShelter('tent')">⛺ Tent (4 Wood, 2 Grass | −15)</button>
+  <button onclick="buildShelter('cabin')">🏠 Cabin (8 Wood, 4 Metal | −25)</button>
 
-    <button onclick="buildShelter('tent')">
-      ⛺ Tent (4 Wood, 2 Grass | −15)
-    </button>
+  <button onclick="craftWeapon('spear')">🗡 Spear (2 Wood, 1 Metal | −5)</button>
+  <button onclick="craftWeapon('axe')">🪓 Axe (2 Wood, 2 Metal | −5)</button>
+  <button onclick="craftWeapon('bow')">🏹 Bow (2 Wood, 2 Grass | −5)</button>
 
-    <button onclick="buildShelter('cabin')">
-      🏠 Cabin (8 Wood, 4 Metal | −25)
-    </button>
+  <button onclick="upgradeWeapon()">⚙️ Upgrade Weapon</button>
+  <button onclick="repairWeapon()">🔧 Repair Weapon</button>
 
-    <button onclick="craft('weapon')">
-      🗡 Weapon (2 Wood, 1 Metal | −5)
-    </button>
+  <button onclick="craftBandage()">🩹 Bandage (2 Grass | −5)</button>
+  <button onclick="repairCar()">🔧 Repair Car (3 Metal, 2 Wood | −15)</button>
 
-    <button onclick="craft('bandage')">
-      🩹 Bandage (2 Grass | −5)
-    </button>
+  <h2>💾 Save</h2>
+  <button onclick="saveGame()">Save</button>
+  <button onclick="loadGame()">Load</button>
 
-    <button onclick="craft('repair')">
-      🔧 Repair Car (3 Metal, 2 Wood | −15)
-    </button>
-  </div>
-
-  <div id="save">
-    <h2>💾 Save</h2>
-    <button onclick="saveGame()">Save Game</button>
-    <button onclick="loadGame()">Load Game</button>
-  </div>
-
-  <div id="inventory">
-    <h2>🎒 Inventory</h2>
-    <ul id="items"></ul>
-  </div>
+  <h2>🎒 Inventory</h2>
+  <ul id="items"></ul>
 
   <p id="message"></p>
 </div>
