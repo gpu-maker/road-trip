@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Broken Roadtrip</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Broken Roadtrip</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -11,9 +11,9 @@
 <p id="dayState"></p>
 
 <div class="stats">
-  ❤️ Health: <span id="health"></span> |
-  ⚡ Energy: <span id="energy"></span> |
-  💧 Thirst: <span id="thirst"></span>
+❤️ <span id="health"></span>
+⚡ <span id="energy"></span>
+💧 <span id="thirst"></span>
 </div>
 
 <h3>Inventory</h3>
@@ -22,24 +22,31 @@
 <p id="message"></p>
 
 <div class="buttons">
-  <button onclick="travel('forest')">🌲 Forest</button>
-  <button onclick="travel('river')">🏞️ River</button>
-  <button onclick="travel('junkyard')">🛠️ Junkyard</button>
-  <button onclick="travel('camp')">⛺ Camp</button>
+<button onclick="travel('forest')">🌲 Forest</button>
+<button onclick="travel('river')">🏞️ River</button>
+<button onclick="travel('junkyard')">🛠️ Junkyard</button>
+<button onclick="travel('camp')">⛺ Camp</button>
 
-  <button onclick="gather()">🧺 Gather</button>
-  <button onclick="hunt()">🏹 Hunt</button>
-  <button onclick="drink()">💧 Drink</button>
-  <button onclick="rest()">🛏️ Rest</button>
+<button onclick="gather()">🧺 Gather</button>
+<button onclick="hunt()">🏹 Hunt</button>
+<button onclick="drink()">💧 Drink</button>
+<button onclick="rest()">🛏️ Rest</button>
 
-  <button onclick="craftStoneArrows()">🪨 Stone Arrows</button>
-  <button onclick="craftMetalArrows()">🔩 Metal Arrows</button>
+<button onclick="craftStoneArrows()">🪨 Stone Arrows</button>
+<button onclick="craftMetalArrows()">🔩 Metal Arrows</button>
 
-  <button onclick="repairWeapon()">🔧 Repair Weapon</button>
-  <button onclick="upgradeWeapon()">⬆️ Upgrade Weapon</button>
+<button onclick="repairWeapon()">🔧 Repair Weapon</button>
+<button onclick="upgradeWeapon()">⬆️ Upgrade Weapon</button>
 
-  <button onclick="repairArmor()">🛡️ Repair Armor</button>
-  <button onclick="upgradeArmor()">⚙️ Upgrade Armor</button>
+<button onclick="repairArmor()">🛡️ Repair Armor</button>
+<button onclick="upgradeArmor()">⚙️ Upgrade Armor</button>
 
-  <button onclick="saveGame()">💾 Save</button>
-  <button o
+<button onclick="repairCar()">🚗 Repair Car</button>
+
+<button onclick="saveGame()">💾 Save</button>
+<button onclick="loadGame()">📂 Load</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
