@@ -1,24 +1,32 @@
-// ---------- GAME STATE ----------
-let stats = {
-  health: 100,
-  energy: 100,
-  thirst: 100
-};
+let stats = { health: 100, energy: 100, thirst: 100 };
 
 let inventory = {
   wood: 0,
   water: 0,
   grass: 0,
   metal: 0,
-  weapon: 0
+  arrows: 0
 };
 
-let shelter = "none"; // none, tent, cabin
+let weapon = { type: "none", level: 0, durability: 0 };
+
+let shelter = "none";
 let location = "camp";
 let isNight = false;
 let turn = 0;
 
-// ---------- UI ----------
+const weaponStats = {
+  spear: { base: 35, loss: 2, heal: 10 },
+  axe:   { base: 30, loss: 4, heal: 20 },
+  bow:   { base: 25, loss: 1, heal: 5 }
+};
+
+function maxDurability() {
+  return weapon.level > 0
+    ? weaponStats[weapon.type].base + weapon.level * 10
+    : 0;
+}
+
 function updateUI() {
   health.textContent = stats.health;
   energy.textContent = stats.energy;
@@ -26,68 +34,52 @@ function updateUI() {
   dayState.textContent = isNight ? "Night" : "Day";
 
   items.innerHTML = "";
-  for (let item in inventory) {
-    if (inventory[item] > 0) {
+  for (let i in inventory) {
+    if (inventory[i] > 0) {
       const li = document.createElement("li");
-      li.textContent = `${item}: ${inventory[item]}`;
+      li.textContent = `${i}: ${inventory[i]}`;
       items.appendChild(li);
     }
   }
 
-  const shelterLi = document.createElement("li");
-  shelterLi.textContent = `shelter: ${shelter}`;
-  items.appendChild(shelterLi);
+  const w = document.createElement("li");
+  w.textContent =
+    weapon.level > 0
+      ? `weapon: ${weapon.type} Lv${weapon.level} (${weapon.durability}/${maxDurability()})`
+      : "weapon: none";
+  items.appendChild(w);
+
+  const s = document.createElement("li");
+  s.textContent = `shelter: ${shelter}`;
+  items.appendChild(s);
 }
 
-function message(text) {
-  document.getElementById("message").textContent = text;
-}
+function msg(t) { message.textContent = t; }
 
-// ---------- TIME ----------
 function advanceTime() {
   turn++;
-  if (turn % 4 === 0) {
-    isNight = !isNight;
-    message(isNight
-      ? "Night falls. The forest grows dangerous."
-      : "Morning comes. You survived the night."
-    );
-  }
+  if (turn % 4 === 0) isNight = !isNight;
 }
 
-// ---------- SURVIVAL ----------
 function drain() {
   stats.thirst -= isNight ? 8 : 5;
-
-  if (stats.thirst <= 0) {
-    stats.health -= isNight ? 15 : 10;
-    message("You suffer from dehydration.");
-  }
-
+  if (stats.thirst <= 0) stats.health -= 10;
   if (stats.health <= 0) {
-    alert("You died alone in the forest.");
+    alert("You died in the forest.");
     localStorage.removeItem("roadtripSave");
     location.reload();
   }
 }
 
-// ---------- MAP ----------
-function travel(place) {
-  if (stats.energy < 10) return message("Not enough energy.");
-
+function travel(p) {
+  if (stats.energy < 10) return msg("Not enough energy.");
   stats.energy -= 10;
-  location = place;
-  message(`You travel to the ${place}.`);
-
-  advanceTime();
-  drain();
-  updateUI();
+  location = p;
+  advanceTime(); drain(); updateUI();
 }
 
-// ---------- ACTIONS ----------
 function gather() {
-  if (stats.energy < 10) return message("Not enough energy.");
-
+  if (stats.energy < 10) return msg("Not enough energy.");
   stats.energy -= 10;
 
   if (location === "forest") inventory.wood++;
@@ -95,165 +87,162 @@ function gather() {
   if (location === "junkyard") inventory.metal++;
   if (location === "camp") inventory.grass++;
 
-  message(`You gather resources at the ${location}.`);
-  advanceTime();
-  drain();
-  updateUI();
+  advanceTime(); drain(); updateUI();
 }
 
 function hunt() {
-  if (stats.energy < 20) return message("Not enough energy.");
-
+  if (stats.energy < 20) return msg("Not enough energy.");
   stats.energy -= 20;
 
-  if (inventory.weapon > 0) {
-    stats.health = Math.min(100, stats.health + 20);
-    message("The hunt is successful.");
+  if (weapon.level === 0) {
+    stats.health -= 30;
+    msg("You hunt bare-handed and get injured.");
   } else {
-    stats.health -= isNight ? 25 : 15;
-    message("You are injured hunting without a weapon.");
+    if (weapon.type === "bow") {
+      if (inventory.arrows <= 0) {
+        msg("No arrows! You can't hunt with a bow.");
+        stats.energy += 20;
+        return;
+      }
+      inventory.arrows--;
+    }
+
+    weapon.durability -= weaponStats[weapon.type].loss * (isNight ? 2 : 1);
+    if (weapon.durability < 0) weapon.durability = 0;
+
+    if (weapon.durability === 0) {
+      stats.health -= 20;
+      msg("Your weapon fails during the hunt.");
+    } else {
+      stats.health = Math.min(
+        100,
+        stats.health + weaponStats[weapon.type].heal + weapon.level * 5
+      );
+      msg(`Successful hunt with your ${weapon.type}.`);
+    }
   }
 
-  advanceTime();
-  drain();
-  updateUI();
+  advanceTime(); drain(); updateUI();
 }
 
 function drink() {
-  if (inventory.water <= 0) return message("No water.");
-
+  if (inventory.water <= 0) return msg("No water.");
   inventory.water--;
   stats.thirst = Math.min(100, stats.thirst + 40);
-  message("You drink water.");
   updateUI();
 }
 
-// ---------- REST ----------
 function rest() {
-  let energyGain = isNight ? 40 : 30;
-  let dangerChance = isNight ? 0.25 : 0;
+  let gain = isNight ? 40 : 30;
+  let danger = isNight ? 0.25 : 0;
 
   if (location === "camp") {
-    if (shelter === "tent") {
-      dangerChance = 0.10;
-      energyGain += 10;
-    }
-    if (shelter === "cabin") {
-      dangerChance = 0;
-      energyGain += 25;
-    }
+    if (shelter === "tent") { gain += 10; danger = 0.1; }
+    if (shelter === "cabin") { gain += 25; danger = 0; }
   }
 
-  stats.energy = Math.min(100, stats.energy + energyGain);
+  stats.energy = Math.min(100, stats.energy + gain);
   stats.thirst -= 10;
+  if (Math.random() < danger) stats.health -= 15;
 
-  if (Math.random() < dangerChance) {
-    stats.health -= 15;
-    message("You are attacked while resting.");
+  advanceTime(); drain(); updateUI();
+}
+
+function craftWeapon(t) {
+  if (weapon.level > 0) return msg("You already have a weapon.");
+  if (stats.energy < 5) return msg("Not enough energy.");
+
+  if (
+    (t === "spear" && inventory.wood >= 2 && inventory.metal >= 1) ||
+    (t === "axe" && inventory.wood >= 2 && inventory.metal >= 2) ||
+    (t === "bow" && inventory.wood >= 2 && inventory.grass >= 2)
+  ) {
+    inventory.wood -= 2;
+    if (t === "spear") inventory.metal--;
+    if (t === "axe") inventory.metal -= 2;
+    if (t === "bow") inventory.grass -= 2;
+  } else return msg("Missing materials.");
+
+  stats.energy -= 5;
+  weapon = { type: t, level: 1, durability: maxDurability() };
+  updateUI();
+}
+
+function upgradeWeapon() {
+  if (weapon.level === 0 || weapon.level === 3) return msg("Cannot upgrade.");
+  if (stats.energy < 10 || inventory.metal < weapon.level + 1)
+    return msg("Not enough resources.");
+
+  stats.energy -= 10;
+  inventory.metal -= weapon.level + 1;
+  weapon.level++;
+  weapon.durability = maxDurability();
+  updateUI();
+}
+
+function repairWeapon() {
+  if (weapon.level === 0 || location !== "camp")
+    return msg("Must be at camp with a weapon.");
+  if (stats.energy < 5 || inventory.metal < 1)
+    return msg("Need 1 metal, 5 energy.");
+
+  stats.energy -= 5;
+  inventory.metal--;
+  weapon.durability = Math.min(maxDurability(), weapon.durability + 20);
+  updateUI();
+}
+
+function craftArrows() {
+  if (inventory.wood >= 1 && inventory.metal >= 1 && stats.energy >= 5) {
+    inventory.wood--;
+    inventory.metal--;
+    stats.energy -= 5;
+    inventory.arrows += 5;
+    updateUI();
   } else {
-    message("You rest safely.");
+    msg("Need 1 wood, 1 metal, 5 energy.");
   }
+}
 
-  advanceTime();
-  drain();
+function buildShelter(t) {
+  if (location !== "camp") return;
+  if (t === "tent" && shelter === "none" && inventory.wood >= 4 && inventory.grass >= 2 && stats.energy >= 15) {
+    inventory.wood -= 4; inventory.grass -= 2; stats.energy -= 15; shelter = "tent";
+  }
+  if (t === "cabin" && shelter === "tent" && inventory.wood >= 8 && inventory.metal >= 4 && stats.energy >= 25) {
+    inventory.wood -= 8; inventory.metal -= 4; stats.energy -= 25; shelter = "cabin";
+  }
   updateUI();
 }
 
-// ---------- SHELTER ----------
-function buildShelter(type) {
-  if (location !== "camp") return message("You must be at camp.");
-
-  if (type === "tent") {
-    if (shelter !== "none") return message("You already have shelter.");
-    if (stats.energy < 15) return message("Not enough energy.");
-    if (inventory.wood >= 4 && inventory.grass >= 2) {
-      stats.energy -= 15;
-      inventory.wood -= 4;
-      inventory.grass -= 2;
-      shelter = "tent";
-      message("You build a tent. Nights are safer.");
-    } else message("Tent requires 4 wood, 2 grass.");
+function craftBandage() {
+  if (inventory.grass >= 2 && stats.energy >= 5) {
+    inventory.grass -= 2;
+    stats.energy -= 5;
+    stats.health = Math.min(100, stats.health + 30);
+    updateUI();
   }
-
-  if (type === "cabin") {
-    if (shelter !== "tent") return message("You need a tent first.");
-    if (stats.energy < 25) return message("Not enough energy.");
-    if (inventory.wood >= 8 && inventory.metal >= 4) {
-      stats.energy -= 25;
-      inventory.wood -= 8;
-      inventory.metal -= 4;
-      shelter = "cabin";
-      message("You build a cabin. You are safe at night.");
-    } else message("Cabin requires 8 wood, 4 metal.");
-  }
-
-  updateUI();
 }
 
-// ---------- CRAFTING ----------
-function craft(item) {
-  if (item === "weapon") {
-    if (stats.energy < 5) return message("Not enough energy.");
-    if (inventory.wood >= 2 && inventory.metal >= 1) {
-      stats.energy -= 5;
-      inventory.wood -= 2;
-      inventory.metal -= 1;
-      inventory.weapon++;
-      message("Weapon crafted.");
-    } else message("Requires 2 wood, 1 metal.");
+function repairCar() {
+  if (inventory.metal >= 3 && inventory.wood >= 2 && stats.energy >= 15) {
+    alert("You repair the car and escape!");
+    localStorage.removeItem("roadtripSave");
+    location.reload();
   }
-
-  if (item === "bandage") {
-    if (stats.energy < 5) return message("Not enough energy.");
-    if (inventory.grass >= 2) {
-      stats.energy -= 5;
-      inventory.grass -= 2;
-      stats.health = Math.min(100, stats.health + 30);
-      message("You apply a bandage.");
-    } else message("Requires 2 grass.");
-  }
-
-  if (item === "repair") {
-    if (stats.energy < 15) return message("Not enough energy.");
-    if (inventory.metal >= 3 && inventory.wood >= 2) {
-      alert("You repair the car and escape the forest!");
-      localStorage.removeItem("roadtripSave");
-      location.reload();
-    } else message("Requires 3 metal, 2 wood.");
-  }
-
-  updateUI();
 }
 
-// ---------- SAVE / LOAD ----------
 function saveGame() {
-  const saveData = {
-    stats,
-    inventory,
-    shelter,
-    location,
-    isNight,
-    turn
-  };
-  localStorage.setItem("roadtripSave", JSON.stringify(saveData));
-  message("Game saved.");
+  localStorage.setItem("roadtripSave", JSON.stringify({
+    stats, inventory, weapon, shelter, location, isNight, turn
+  }));
 }
 
 function loadGame() {
-  const save = localStorage.getItem("roadtripSave");
-  if (!save) return message("No save found.");
-
-  const data = JSON.parse(save);
-  stats = data.stats;
-  inventory = data.inventory;
-  shelter = data.shelter;
-  location = data.location;
-  isNight = data.isNight;
-  turn = data.turn;
-
-  message("Game loaded.");
+  const d = JSON.parse(localStorage.getItem("roadtripSave"));
+  if (!d) return;
+  ({ stats, inventory, weapon, shelter, location, isNight, turn } = d);
   updateUI();
 }
 
-// ---------- START ----------
 updateUI();
