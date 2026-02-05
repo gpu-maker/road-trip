@@ -1,3 +1,4 @@
+// ---------- GAME STATE ----------
 let stats = {
   health: 100,
   energy: 100,
@@ -12,20 +13,23 @@ let inventory = {
   weapon: 0
 };
 
-// ---------------- UI ----------------
+let location = "camp";
+let isNight = false;
+let turn = 0;
+
+// ---------- UI ----------
 function updateUI() {
-  document.getElementById("health").textContent = stats.health;
-  document.getElementById("energy").textContent = stats.energy;
-  document.getElementById("thirst").textContent = stats.thirst;
+  health.textContent = stats.health;
+  energy.textContent = stats.energy;
+  thirst.textContent = stats.thirst;
+  dayState.textContent = isNight ? "Night" : "Day";
 
-  const list = document.getElementById("items");
-  list.innerHTML = "";
-
+  items.innerHTML = "";
   for (let item in inventory) {
     if (inventory[item] > 0) {
       const li = document.createElement("li");
       li.textContent = `${item}: ${inventory[item]}`;
-      list.appendChild(li);
+      items.appendChild(li);
     }
   }
 }
@@ -34,6 +38,134 @@ function message(text) {
   document.getElementById("message").textContent = text;
 }
 
+// ---------- TIME ----------
+function advanceTime() {
+  turn++;
+  if (turn % 4 === 0) {
+    isNight = !isNight;
+    message(isNight
+      ? "Night falls. The forest grows dangerous."
+      : "Morning arrives. You feel a bit safer."
+    );
+  }
+}
+
+// ---------- SURVIVAL ----------
+function drain() {
+  stats.thirst -= isNight ? 8 : 5;
+
+  if (stats.thirst <= 0) {
+    stats.health -= isNight ? 15 : 10;
+    message("You are suffering from dehydration.");
+  }
+
+  if (stats.health <= 0) {
+    alert("You died alone in the forest.");
+    location.reload();
+  }
+}
+
+// ---------- MAP ----------
+function travel(place) {
+  if (stats.energy < 10) {
+    message("Too exhausted to travel.");
+    return;
+  }
+
+  stats.energy -= 10;
+  location = place;
+
+  message(`You travel to the ${place}.`);
+  advanceTime();
+  drain();
+  updateUI();
+}
+
+// ---------- ACTIONS ----------
+function gather() {
+  if (stats.energy < 10) {
+    message("Too tired to gather.");
+    return;
+  }
+
+  stats.energy -= 10;
+
+  if (location === "forest") inventory.wood++;
+  if (location === "river") inventory.water++;
+  if (location === "junkyard") inventory.metal++;
+  if (location === "camp") inventory.grass++;
+
+  message(`You gather resources at the ${location}.`);
+  advanceTime();
+  drain();
+  updateUI();
+}
+
+function hunt() {
+  if (stats.energy < 20) {
+    message("Too tired to hunt.");
+    return;
+  }
+
+  stats.energy -= 20;
+
+  if (inventory.weapon > 0) {
+    stats.health = Math.min(100, stats.health + 20);
+    message("You successfully hunt and eat.");
+  } else {
+    stats.health -= isNight ? 25 : 15;
+    message("You are injured while hunting.");
+  }
+
+  advanceTime();
+  drain();
+  updateUI();
+}
+
+function drink() {
+  if (inventory.water <= 0) {
+    message("You have no water.");
+    return;
+  }
+
+  inventory.water--;
+  stats.thirst = Math.min(100, stats.thirst + 40);
+  message("You drink water and feel better.");
+  updateUI();
+}
+
+// ---------- CRAFTING ----------
+function craft(item) {
+
+  if (item === "weapon") {
+    if (inventory.wood >= 2 && inventory.metal >= 1) {
+      inventory.wood -= 2;
+      inventory.metal -= 1;
+      inventory.weapon++;
+      message("Weapon crafted.");
+    } else message("Requires 2 wood, 1 metal.");
+  }
+
+  if (item === "bandage") {
+    if (inventory.grass >= 2) {
+      inventory.grass -= 2;
+      stats.health = Math.min(100, stats.health + 30);
+      message("Bandage applied.");
+    } else message("Requires 2 grass.");
+  }
+
+  if (item === "repair") {
+    if (inventory.metal >= 3 && inventory.wood >= 2) {
+      alert("You repaired the car and escaped!");
+      location.reload();
+    } else message("Requires 3 metal, 2 wood.");
+  }
+
+  updateUI();
+}
+
+// ---------- START ----------
+updateUI();
 // ---------------- Survival Logic ----------------
 function drain() {
   stats.thirst -= 5;
