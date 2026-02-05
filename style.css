@@ -28,3 +28,73 @@ button:hover {
 h1, h2 {
   color: #8cc9ff;
 }
+body {
+  background: linear-gradient(#041a3a, #020b1f);
+  color: #dbe9ff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 { color: #6fb6ff; }
+
+.stats {
+  margin: 10px;
+  font-size: 18px;
+}
+
+button {
+  background: #0b3d91;
+  color: #e6f2ff;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin: 6px;
+  cursor: pointer;
+}
+
+button:hover { background: #145ecb; }
+
+#message { margin-top: 10px; height: 24px; }
+
+/* ───── ITEM GRID ───── */
+#items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+}
+
+/* 12x12 pixel screen */
+.itemBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #071f46;
+  border-radius: 10px;
+  padding: 6px;
+}
+
+.pixel {
+  width: 12px;
+  height: 12px;
+  background: #0c2f66;
+  border: 1px solid #6fb6ff;
+  position: relative;
+}
+
+/* durability bar */
+.pixel::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--cond);
+  height: 100%;
+  background: var(--color);
+}
+
+.itemText {
+  font-size: 12px;
+  text-align: left;
+}
