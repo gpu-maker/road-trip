@@ -11,8 +11,8 @@
   <h1>🚗 Broken Roadtrip</h1>
 
   <p id="story">
-    Your car breaks down in a deep blue forest.  
-    Survive the nights. Explore. Repair the car.
+    Stranded in a deep blue forest.  
+    Build shelter. Survive the night. Escape.
   </p>
 
   <div id="time">
@@ -26,7 +26,7 @@
   </div>
 
   <div id="map">
-    <h2>🗺️ Map</h2>
+    <h2>🗺️ Map (−10 Energy)</h2>
     <button onclick="travel('forest')">🌲 Forest</button>
     <button onclick="travel('river')">💧 River</button>
     <button onclick="travel('junkyard')">🔩 Junkyard</button>
@@ -35,42 +35,44 @@
 
   <div id="actions">
     <h2>Actions</h2>
-    <button onclick="gather()">⛏ Gather</button>
-    <button onclick="hunt()">🏹 Hunt</button>
-    <button onclick="drink()">💧 Drink Water</button>
+    <button onclick="gather()">⛏ Gather (−10)</button>
+    <button onclick="hunt()">🏹 Hunt (−20)</button>
+    <button onclick="drink()">💧 Drink</button>
+    <button onclick="rest()">😴 Rest</button>
   </div>
 
   <div id="crafting">
-    <h2>Craft</h2>
-    <button onclick="craft('weapon')">🗡 Weapon (2 Wood, 1 Metal)</button>
-    <button onclick="craft('bandage')">🩹 Bandage (2 Grass)</button>
-    <button onclick="craft('repair')">🔧 Car Repair (3 Metal, 2 Wood)</button>
+    <h2>Craft / Build</h2>
+
+    <button onclick="buildShelter('tent')">
+      ⛺ Tent (4 Wood, 2 Grass | −15)
+    </button>
+
+    <button onclick="buildShelter('cabin')">
+      🏠 Cabin (8 Wood, 4 Metal | −25)
+    </button>
+
+    <button onclick="craft('weapon')">
+      🗡 Weapon (2 Wood, 1 Metal | −5)
+    </button>
+
+    <button onclick="craft('bandage')">
+      🩹 Bandage (2 Grass | −5)
+    </button>
+
+    <button onclick="craft('repair')">
+      🔧 Repair Car (3 Metal, 2 Wood | −15)
+    </button>
+  </div>
+
+  <div id="save">
+    <h2>💾 Save</h2>
+    <button onclick="saveGame()">Save Game</button>
+    <button onclick="loadGame()">Load Game</button>
   </div>
 
   <div id="inventory">
     <h2>🎒 Inventory</h2>
-    <ul id="items"></ul>
-  </div>
-
-  <p id="message"></p>
-</div>
-
-<script src="script.js"></script>
-</body>
-</html>
-    </button>
-
-    <button onclick="craft('bandage')">
-      🩹 Bandage (2 Grass)
-    </button>
-
-    <button onclick="craft('repair')">
-      🔧 Car Repair (3 Metal, 2 Wood)
-    </button>
-  </div>
-
-  <div id="inventory">
-    <h2>Inventory</h2>
     <ul id="items"></ul>
   </div>
 
