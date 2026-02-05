@@ -1,0 +1,41 @@
+body {
+  background: linear-gradient(#001f3f, #003366);
+  color: #cce6ff;
+  font-family: monospace;
+  text-align: center;
+}
+
+#game {
+  max-width: 720px;
+  margin: auto;
+  padding: 20px;
+  border: 2px solid #3399ff;
+  background: rgba(0, 25, 55, 0.95);
+}
+
+h1, h2 {
+  color: #99ccff;
+}
+
+button {
+  background: #004c99;
+  color: #cce6ff;
+  border: 1px solid #66b2ff;
+  padding: 8px 12px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0066cc;
+}
+
+#stats div {
+  margin: 6px;
+}
+
+#message {
+  margin-top: 15px;
+  min-height: 20px;
+  color: #99ccff;
+}
