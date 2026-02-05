@@ -18,6 +18,7 @@ let location = "camp";
 let isNight = false;
 let turn = 0;
 
+/* ───── DATA ───── */
 const weaponStats = {
   spear: { base: 35, loss: 2, heal: 10 },
   axe:   { base: 30, loss: 4, heal: 20 },
@@ -30,7 +31,8 @@ const armorTypes = {
   heavy:  { defense: 0.6, max: 80 }
 };
 
-function maxDurability() {
+/* ───── HELPERS ───── */
+function maxWeaponDurability() {
   return weapon.level > 0
     ? weaponStats[weapon.type].base + weapon.level * 10
     : 0;
@@ -43,38 +45,6 @@ function applyDamage(dmg) {
     if (armor.durability < 0) armor.durability = 0;
   }
   stats.health -= Math.ceil(dmg);
-}
-
-function updateUI() {
-  health.textContent = stats.health;
-  energy.textContent = stats.energy;
-  thirst.textContent = stats.thirst;
-  dayState.textContent = isNight ? "Night" : "Day";
-
-  items.innerHTML = "";
-  for (let i in inventory) {
-    if (inventory[i] > 0) {
-      const li = document.createElement("li");
-      li.textContent = `${i}: ${inventory[i]}`;
-      items.appendChild(li);
-    }
-  }
-
-  const w = document.createElement("li");
-  w.textContent = weapon.level > 0
-    ? `weapon: ${weapon.type} Lv${weapon.level} (${weapon.durability}/${maxDurability()})`
-    : "weapon: none";
-  items.appendChild(w);
-
-  const a = document.createElement("li");
-  a.textContent = armor.type !== "none"
-    ? `armor: ${armor.type} (${armor.durability}/${armor.max})`
-    : "armor: none";
-  items.appendChild(a);
-
-  const s = document.createElement("li");
-  s.textContent = `shelter: ${shelter}`;
-  items.appendChild(s);
 }
 
 function msg(t) { message.textContent = t; }
@@ -94,6 +64,30 @@ function drain() {
   }
 }
 
+/* ───── UI ───── */
+function updateUI() {
+  health.textContent = stats.health;
+  energy.textContent = stats.energy;
+  thirst.textContent = stats.thirst;
+  dayState.textContent = isNight ? "Night" : "Day";
+
+  items.innerHTML = "";
+  for (let i in inventory) {
+    if (inventory[i] > 0) {
+      const li = document.createElement("li");
+      li.textContent = `${i}: ${inventory[i]}`;
+      items.appendChild(li);
+    }
+  }
+
+  items.innerHTML += `
+    <li>weapon: ${weapon.level ? `${weapon.type} Lv${weapon.level} (${weapon.durability}/${maxWeaponDurability()})` : "none"}</li>
+    <li>armor: ${armor.type !== "none" ? `${armor.type} (${armor.durability}/${armor.max})` : "none"}</li>
+    <li>shelter: ${shelter}</li>
+  `;
+}
+
+/* ───── CORE ACTIONS ───── */
 function travel(p) {
   if (stats.energy < 10) return msg("Need 10 energy.");
   stats.energy -= 10;
@@ -119,7 +113,7 @@ function hunt() {
 
   if (weapon.level === 0) {
     applyDamage(30);
-    msg("You hunt bare-handed and get injured.");
+    msg("You hunt bare-handed.");
     advanceTime(); drain(); updateUI();
     return;
   }
@@ -131,6 +125,7 @@ function hunt() {
       arrowBonus = 15 + (isNight ? 5 : 0);
     } else if (inventory.stoneArrows > 0) {
       inventory.stoneArrows--;
+      arrowBonus = 5;
     } else {
       msg("No arrows.");
       stats.energy += 20;
@@ -142,7 +137,7 @@ function hunt() {
   if (weapon.durability <= 0) {
     weapon.durability = 0;
     applyDamage(20);
-    msg("Your weapon fails during the hunt.");
+    msg("Weapon fails mid-hunt.");
   } else {
     stats.health = Math.min(
       100,
@@ -157,27 +152,59 @@ function hunt() {
   advanceTime(); drain(); updateUI();
 }
 
-function drink() {
-  if (inventory.water <= 0) return msg("No water.");
-  inventory.water--;
-  stats.thirst = Math.min(100, stats.thirst + 40);
+/* ───── WEAPONS ───── */
+function upgradeWeapon() {
+  if (weapon.level === 0 || weapon.level === 3)
+    return msg("Cannot upgrade.");
+
+  const cost = weapon.level === 1
+    ? { energy: 10, metal: 2 }
+    : { energy: 15, metal: 3 };
+
+  if (stats.energy < cost.energy || inventory.metal < cost.metal)
+    return msg(`Need ${cost.energy} energy & ${cost.metal} metal.`);
+
+  stats.energy -= cost.energy;
+  inventory.metal -= cost.metal;
+  weapon.level++;
+  weapon.durability = maxWeaponDurability();
   updateUI();
 }
 
-function rest() {
-  let gain = isNight ? 40 : 30;
-  let danger = isNight ? 0.25 : 0;
+function repairWeapon() {
+  if (weapon.level === 0 || location !== "camp")
+    return msg("Repair at camp only.");
 
-  if (location === "camp") {
-    if (shelter === "tent") { gain += 10; danger = 0.1; }
-    if (shelter === "cabin") { gain += 25; danger = 0; }
-  }
+  if (stats.energy < 5 || inventory.metal < 1)
+    return msg("Need 5 energy & 1 metal.");
 
-  stats.energy = Math.min(100, stats.energy + gain);
-  stats.thirst -= 10;
-  if (Math.random() < danger) applyDamage(15);
+  stats.energy -= 5;
+  inventory.metal--;
+  weapon.durability = Math.min(
+    maxWeaponDurability(),
+    weapon.durability + 25
+  );
+  updateUI();
+}
 
-  advanceTime(); drain(); updateUI();
+/* ───── ARROWS ───── */
+function craftStoneArrows() {
+  if (inventory.wood < 1 || stats.energy < 5)
+    return msg("Need 1 wood & 5 energy.");
+  inventory.wood--;
+  stats.energy -= 5;
+  inventory.stoneArrows += 5;
+  updateUI();
+}
+
+function craftMetalArrows() {
+  if (inventory.wood < 1 || inventory.metal < 1 || stats.energy < 8)
+    return msg("Need 1 wood, 1 metal & 8 energy.");
+  inventory.wood--;
+  inventory.metal--;
+  stats.energy -= 8;
+  inventory.metalArrows += 5;
+  updateUI();
 }
 
 /* ───── ARMOR ───── */
@@ -206,7 +233,7 @@ function repairArmor() {
     return msg("Repair armor at camp.");
 
   if (inventory.metal < 1 || stats.energy < 5)
-    return msg("Need 1 metal, 5 energy.");
+    return msg("Need 1 metal & 5 energy.");
 
   inventory.metal--;
   stats.energy -= 5;
