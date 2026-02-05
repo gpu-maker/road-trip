@@ -9,10 +9,15 @@
 
 <div id="game">
   <h1>🚗 Broken Roadtrip</h1>
+
   <p id="story">
-    Your car breaks down in a cold blue forest.  
-    Gather supplies, survive, and repair the car.
+    Your car breaks down in a deep blue forest.  
+    Survive the nights. Explore. Repair the car.
   </p>
+
+  <div id="time">
+    🌙 Time: <span id="dayState">Day</span>
+  </div>
 
   <div id="stats">
     <div>❤️ Health: <span id="health">100</span></div>
@@ -20,20 +25,39 @@
     <div>💧 Thirst: <span id="thirst">100</span></div>
   </div>
 
+  <div id="map">
+    <h2>🗺️ Map</h2>
+    <button onclick="travel('forest')">🌲 Forest</button>
+    <button onclick="travel('river')">💧 River</button>
+    <button onclick="travel('junkyard')">🔩 Junkyard</button>
+    <button onclick="travel('camp')">🚗 Camp</button>
+  </div>
+
   <div id="actions">
-    <h2>Gather (Costs Energy)</h2>
-    <button onclick="gather('wood')">🌲 Wood (-10 Energy)</button>
-    <button onclick="gather('water')">💧 Water (-10 Energy)</button>
-    <button onclick="gather('grass')">🌿 Grass (-10 Energy)</button>
-    <button onclick="gather('metal')">🔩 Metal (-10 Energy)</button>
-    <button onclick="hunt()">🏹 Hunt (-20 Energy)</button>
+    <h2>Actions</h2>
+    <button onclick="gather()">⛏ Gather</button>
+    <button onclick="hunt()">🏹 Hunt</button>
+    <button onclick="drink()">💧 Drink Water</button>
   </div>
 
   <div id="crafting">
-    <h2>Craft / Repair</h2>
+    <h2>Craft</h2>
+    <button onclick="craft('weapon')">🗡 Weapon (2 Wood, 1 Metal)</button>
+    <button onclick="craft('bandage')">🩹 Bandage (2 Grass)</button>
+    <button onclick="craft('repair')">🔧 Car Repair (3 Metal, 2 Wood)</button>
+  </div>
 
-    <button onclick="craft('weapon')">
-      🗡 Weapon (2 Wood, 1 Metal)
+  <div id="inventory">
+    <h2>🎒 Inventory</h2>
+    <ul id="items"></ul>
+  </div>
+
+  <p id="message"></p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
     </button>
 
     <button onclick="craft('bandage')">
